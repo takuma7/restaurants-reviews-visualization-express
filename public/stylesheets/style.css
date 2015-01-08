@@ -6,3 +6,19 @@ body {
 a {
   color: #00B7FF;
 }
+
+#map-canvas {
+  width: 800px;
+  height: 600px;
+}
+.layer {
+  position: relative;
+}
+.layer svg{
+  position: absolute;
+  top: -4000px;
+  left: -4000px;
+  width: 8000px;
+  height: 8000px;
+}
+

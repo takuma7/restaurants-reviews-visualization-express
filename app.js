@@ -8,6 +8,13 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
+var Mongolian = require('mongolian');
+var mongoServer = new Mongolian();
+var db = mongoServer.db('gnavi_data');
+var restaurants = db.collection('restaurants');
+
+var _u = require('underscore');
+
 var app = express();
 
 // view engine setup
@@ -24,6 +31,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+
+app.get('/api/restaurants', function(req, res){
+  console.log(req.query);
+  if(!_u.has(req.query, 'longitude') || !_u.has(req.query, 'latitude')){
+    res.json({
+      "error": "wrong arguments"
+    });
+  }
+  var longitude = parseFloat(req.query.longitude),
+      latitude = parseFloat(req.query.latitude);
+  //[139.757827,35.712850]
+  restaurants.find({loc_wgs84: {$nearSphere: [longitude, latitude] }}).limit(1000).toArray(function(err, array){
+    if(err){
+      res.json({"error": err});
+    }else{
+      res.json(array);
+    }
+  });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
