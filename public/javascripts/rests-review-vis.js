@@ -44,7 +44,7 @@ var latitude = "35.7055238";
 var longitude = "139.75966110000002";
 
 queue()
-  .defer(d3.json, "/api/restaurants?longitude=&latitude=")
+  .defer(d3.json, "/api/restaurants?longitude=139.7596611000002&latitude=35.7055238")
   .await(initialize);
 
 var svg;
@@ -52,7 +52,7 @@ var map;
 var geocoder;
 
 function initialize(error, rests) {
-  process(rest, "35.7055238", "139.75966110000002");
+  process(rests, "35.7055238", "139.75966110000002");
 }
 
 function process(rests, latitude, longitude) {
@@ -66,6 +66,7 @@ function process(rests, latitude, longitude) {
     minZoom: 16,
     maxZoom: 20,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
+    styles: [{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#000000"},{"lightness":40}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#000000"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":17},{"weight":1.2}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"landscape.man_made","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":21}]},{"featureType":"poi","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.icon","stylers":[{"gamma":"0.00"},{"lightness":"-70"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":17}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":29},{"weight":0.2},{"visibility":"off"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":18}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":16}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":19}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":17}]}]
   };
   geocoder = new google.maps.Geocoder();
   map = new google.maps.Map(mapCanvas, mapOptions);
@@ -119,7 +120,7 @@ function process(rests, latitude, longitude) {
         })
         .on("mouseout", function (d) {
         	tooltip.transition()
-            .duration(500)		
+            .duration(500)
             .style("opacity", 0);
 				});
     };
@@ -139,26 +140,6 @@ function getLocation() {
     }
   });
 }
-
-function GnaviAPI() {
-  this.keyid = "add0591d19cd0bbeabc34cb80cd0d06e";
-}
-
-GnaviAPI.prototype.restSearchWithLocationAndRange = function (location, range) {
-  var options = {
-    keyid: this.keyid,
-    format: "json",
-    hit_per_page: 500,
-    offset_page: 1,
-    latitude: location.latitude,
-    longitude: location.longitude,
-    range: range,
-  };
-  var rests = [];
-  $.get("http://api.gnavi.co.jp/ver2/RestSearchAPI/", options, function (res) {
-    console.log(res);
-  });
-};
 
 function convert (word) {
   if (word == "おいしい" || word == "美味") return "美味しい";
