@@ -16,6 +16,7 @@ var rests_data;
 var feature_of_rests;
 
 var color = d3.scale.category20();
+var word_color = d3.scale.category20c();
 var scale = d3.scale.linear()
   .domain([1, 100])
   .range([4, 80]);
@@ -251,7 +252,7 @@ function display(i) {
     .data(words)
     .enter().append("text")
     .style("font-size", function(d) { return d.size + "px"; })
-    .style("fill", function(d, i) { return color(i); })
+    .style("fill", function(d, i) { return word_color(i); })
     .attr("transform", function(d) {
       return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
     })
