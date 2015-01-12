@@ -28,6 +28,7 @@ var quantizeRed = [
 	"rgb(222,45,38)",
 	"rgb(165,15,21)"
 ];
+
 var colorRed = d3.scale.linear()
 	.domain(levels)
 	.range(quantizeRed);
@@ -37,8 +38,10 @@ var tooltip = d3.select("body")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
 
+console.log("start!!");
+
 queue()
-  .defer(d3.json, "rests_hongo.json")
+  .defer(d3.json, "/api/restaurants?longitude=139.757827&latitude=35.712850")
   .await(initialize);
 
 var svg;
@@ -46,6 +49,7 @@ var map;
 var geocoder;
 
 function initialize(error, rests) {
+  console.log(rests);
 	rests_data = rests;
 	extract_feature();
   var mapCanvas = document.getElementById('map-canvas');
