@@ -38,13 +38,13 @@ var tooltip = d3.select("body")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
 
-console.log("start!!");
+
 var url = "/api/restaurants?";
 var latitude = "35.7055238";
 var longitude = "139.75966110000002";
 
 queue()
-  .defer(d3.json, "/api/restaurants?longitude=&latitude=")
+  .defer(d3.json, "/api/restaurants?longitude=139.75966110000002&latitude=35.7055238")
   .await(initialize);
 
 var svg;
@@ -52,7 +52,7 @@ var map;
 var geocoder;
 
 function initialize(error, rests) {
-  process(rest, "35.7055238", "139.75966110000002");
+  process(rests, latitude, longitude);
 }
 
 function process(rests, latitude, longitude) {
@@ -133,7 +133,13 @@ function getLocation() {
     if (status == google.maps.GeocoderStatus.OK) {
       map.setCenter(results[0].geometry.location);
       console.log(results[0].geometry.location);
-      
+      latitude = results[0].geometry.location.k;
+      longitude = results[0].geometry.location.D;
+      console.log(latitude + " " + longitude);
+      var link = url + "longitude=" + longitude + "&latitude=" + latitude;
+      queue()
+        .defer(d3.json, link)
+        .await(initialize);
     }
     else {
       alert("Geocode was not successful for the following reason: " + status);
