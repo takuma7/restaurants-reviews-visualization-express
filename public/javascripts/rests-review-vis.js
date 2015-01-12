@@ -30,13 +30,13 @@ var quantizeRed = [
 ];
 
 var colorRed = d3.scale.linear()
-	.domain(levels)
-	.range(quantizeRed);
+  .domain(levels)
+  .range(quantizeRed);
 
 var tooltip = d3.select("body")
-	.append("div")
-	.attr("class", "tooltip")
-	.style("opacity", 0);
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
 
 console.log("start!!");
 var url = "/api/restaurants?";
@@ -91,38 +91,38 @@ function process(rests, latitude, longitude) {
       //地図描く
       svg.selectAll("circle")
         .attr("r", function(d) {
-        	if (d.votes == null || d.votes.length == 0) return 5;
-        	return scale(d.votes.length);
+          if (d.votes === null || d.votes.length === 0) return 5;
+          return scale(d.votes.length);
         })
         .attr("opacity", 0.5)
         .attr("fill", function (d) {
-        	if (d.votes == null || d.votes.length == 0) return "green";
-        	var ave = 0;
-        	for (var i = 0; i < d.votes.length; i++) {
-        		ave += Number(d.votes[i].score);
-        	};
-        	ave /= d.votes.length;
-        	return colorRed(ave);
+          if (d.votes === null || d.votes.length === 0) return "green";
+          var ave = 0;
+          for (var i = 0; i < d.votes.length; i++) {
+            ave += Number(d.votes[i].score);
+          }
+          ave /= d.votes.length;
+          return colorRed(ave);
         })
         .attr("cx", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[0];})
         .attr("cy", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[1];})
         .on("mouseover", function (d, i) {
-        	tooltip.transition()
-            .duration(200)
-            .style("opacity", 0.9);
+          tooltip.transition()
+          .duration(200)
+          .style("opacity", 0.9);
 
-					tooltip.html("<b>" + d.name.name + "<b><br/>" + d.contacts.address + "<br/>" + d.contacts.tel)
-						.style("left", (d3.event.pageX + 20) + "px")
-						.style("top", (d3.event.pageY + 20) + "px");
+          tooltip.html("<b>" + d.name.name + "<b><br/>" + d.contacts.address + "<br/>" + d.contacts.tel)
+          .style("left", (d3.event.pageX + 20) + "px")
+          .style("top", (d3.event.pageY + 20) + "px");
         })
         .on("click", function (d, i) {
-					display(i);
+          display(i);
         })
         .on("mouseout", function (d) {
-        	tooltip.transition()
-            .duration(500)
-            .style("opacity", 0);
-				});
+          tooltip.transition()
+          .duration(500)
+          .style("opacity", 0);
+        });
     };
   };
   overlay.setMap(map);
