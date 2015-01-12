@@ -17,8 +17,8 @@ var feature_of_rests;
 
 var color = d3.scale.category10();
 var scale = d3.scale.linear()
-.domain([1, 150])
-.range([6, 50]);
+  .domain([1, 150])
+  .range([6, 50]);
 
 var levels = [1, 2, 3, 3.5, 4];
 var quantizeRed = [
@@ -30,31 +30,38 @@ var quantizeRed = [
 ];
 
 var colorRed = d3.scale.linear()
-.domain(levels)
-.range(quantizeRed);
+	.domain(levels)
+	.range(quantizeRed);
 
 var tooltip = d3.select("body")
-.append("div")
-.attr("class", "tooltip")
-.style("opacity", 0);
+	.append("div")
+	.attr("class", "tooltip")
+	.style("opacity", 0);
 
 console.log("start!!");
+var url = "/api/restaurants?";
+var latitude = "35.7055238";
+var longitude = "139.75966110000002";
 
 queue()
-.defer(d3.json, "/api/restaurants?longitude=139.757827&latitude=35.712850")
-.await(initialize);
+  .defer(d3.json, "/api/restaurants?longitude=&latitude=")
+  .await(initialize);
 
 var svg;
 var map;
 var geocoder;
 
 function initialize(error, rests) {
+  process(rest, "35.7055238", "139.75966110000002");
+}
+
+function process(rests, latitude, longitude) {
   console.log(rests);
   rests_data = rests;
   extract_feature();
   var mapCanvas = document.getElementById('map-canvas');
   var mapOptions = {
-    center: new google.maps.LatLng(35.7055238, 139.75966110000002),
+    center: new google.maps.LatLng(latitude, longitude),
     zoom: 16,
     minZoom: 16,
     maxZoom: 20,
@@ -76,45 +83,45 @@ function initialize(error, rests) {
     path = d3.geo.path().projection(googleMapProjection);
     console.log(rests);
     svg.selectAll("circle")
-    .data(rests)
-    .enter().append("circle");
+      .data(rests)
+      .enter().append("circle");
 
     overlay.draw = function () {
       //地図描く
       svg.selectAll("circle")
-      .attr("r", function(d) {
-        if (d.votes === null || d.votes.length === 0) return 5;
-        return scale(d.votes.length);
-      })
-      .attr("opacity", 0.5)
-      .attr("fill", function (d) {
-        if (d.votes === null || d.votes.length === 0) return "green";
-        var ave = 0;
-        for (var i = 0; i < d.votes.length; i++) {
-          ave += Number(d.votes[i].score);
-        }
-        ave /= d.votes.length;
-        return colorRed(ave);
-      })
-      .attr("cx", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[0];})
-      .attr("cy", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[1];})
-      .on("mouseover", function (d, i) {
-        tooltip.transition()
-        .duration(200)
-        .style("opacity", 0.9);
+        .attr("r", function(d) {
+        	if (d.votes == null || d.votes.length == 0) return 5;
+        	return scale(d.votes.length);
+        })
+        .attr("opacity", 0.5)
+        .attr("fill", function (d) {
+        	if (d.votes == null || d.votes.length == 0) return "green";
+        	var ave = 0;
+        	for (var i = 0; i < d.votes.length; i++) {
+        		ave += Number(d.votes[i].score);
+        	};
+        	ave /= d.votes.length;
+        	return colorRed(ave);
+        })
+        .attr("cx", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[0];})
+        .attr("cy", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[1];})
+        .on("mouseover", function (d, i) {
+        	tooltip.transition()
+            .duration(200)
+            .style("opacity", 0.9);
 
-        tooltip.html("<b>" + d.name.name + "<b><br/>" + d.contacts.address + "<br/>" + d.contacts.tel)
-        .style("left", (d3.event.pageX + 20) + "px")
-        .style("top", (d3.event.pageY + 20) + "px");
-      })
-      .on("click", function (d, i) {
-        display(i);
-      })
-      .on("mouseout", function (d) {
-        tooltip.transition()
-        .duration(500)
-        .style("opacity", 0);
-      });
+					tooltip.html("<b>" + d.name.name + "<b><br/>" + d.contacts.address + "<br/>" + d.contacts.tel)
+						.style("left", (d3.event.pageX + 20) + "px")
+						.style("top", (d3.event.pageY + 20) + "px");
+        })
+        .on("click", function (d, i) {
+					display(i);
+        })
+        .on("mouseout", function (d) {
+        	tooltip.transition()
+            .duration(500)		
+            .style("opacity", 0);
+				});
     };
   };
   overlay.setMap(map);
