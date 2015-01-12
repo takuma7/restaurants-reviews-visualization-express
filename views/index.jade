@@ -4,7 +4,7 @@ block content
   script(type='text/javascript', src='/javascripts/rests-review-vis.js')
   h1=title
   div.address-form.input-group
-    input#address.form-control(type='textbox', value='文京本郷')
+    input#address.form-control(type='textbox', value='文京本郷', placeholder='地名/住所を入力')
     span.input-group-btn
       input.btn.btn-default(type='button', value='検索', onclick='getLocation()')
   #map-canvas

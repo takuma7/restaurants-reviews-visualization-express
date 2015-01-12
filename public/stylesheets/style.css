@@ -1,6 +1,6 @@
 body {
   width: 800px;
-  margin: 50px;
+  margin: 0 auto;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background: #282828;
   color: #fff;
@@ -8,6 +8,10 @@ body {
 
 a {
   color: #00B7FF;
+}
+
+h1 {
+  margin-bottom: 1em;
 }
 
 #map-canvas {
@@ -29,7 +33,8 @@ a {
   /* position: absolute; */
   /* top: 8px; */
   /* left: 808px; */
-  width: 545px;
+  /* width: 545px; */
+  width: 800px;
   height: 200px;
 }
 
@@ -62,4 +67,7 @@ div.tooltip {
   margin-top: 1em;
 }
 
-
+.address-form input[type=textbox] {
+  background: #202020;
+  color: #fff;
+}
