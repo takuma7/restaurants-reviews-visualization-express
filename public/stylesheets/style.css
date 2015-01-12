@@ -24,3 +24,41 @@ a {
   height: 8000px;
 }
 
+.wordcloud {
+  /* position: absolute; */
+  /* top: 8px; */
+  /* left: 808px; */
+  width: 545px;
+  height: 200px;
+}
+
+div.tooltip {
+  position: absolute;
+  width: 20em;
+  height: auto;
+  z-index: 999999999;
+  padding: 1em;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 0px;
+}
+
+.tooltip ul {
+  margin: 0;
+  padding: 0;
+}
+
+.tooltip ul li{
+  list-style: none;
+  color: #666;
+}
+.tooltip ul li.title {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #fff;
+}
+.tooltip ul li+li {
+  margin-top: 1em;
+}
+
+

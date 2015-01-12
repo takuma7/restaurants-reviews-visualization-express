@@ -134,9 +134,14 @@ function process(rests, latitude, longitude) {
           .duration(200)
           .style("opacity", 0.9);
 
-          tooltip.html("<b>" + d.name.name + "<b><br/>" + d.contacts.address + "<br/>" + d.contacts.tel + "<br/>" + d.avg_score)
-          .style("left", (d3.event.pageX + 20) + "px")
-          .style("top", (d3.event.pageY + 20) + "px");
+          tooltip.html('<ul>' +
+                         '<li class="title">' + d.name.name + '</li>' +
+                         '<li>' + '住所 : ' + d.contacts.address + '</li>' +
+                         '<li>' + 'TEL  : ' + d.contacts.tel + '</li>' +
+                         '<li>' + '評価 : ' + (d.avg_score ? Math.round(d.avg_score * 10)/10 : '-' ) + '</li>' +
+                       '</ul>')
+          .style("left", (d3.event.pageX + 15) + "px")
+          .style("top", (d3.event.pageY + 15) + "px");
         })
         .on("click", function (d, i) {
           display(i);
