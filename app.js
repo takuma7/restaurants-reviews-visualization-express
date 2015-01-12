@@ -42,10 +42,11 @@ app.get('/api/restaurants', function(req, res){
   var longitude = parseFloat(req.query.longitude),
       latitude = parseFloat(req.query.latitude);
   //[139.757827,35.712850]
-  restaurants.find({loc_wgs84: {$nearSphere: [longitude, latitude] }}).limit(1000).toArray(function(err, array){
+  restaurants.find({loc_wgs84: {$nearSphere: [longitude, latitude] }}).limit(3000).toArray(function(err, array){
     if(err){
       res.json({"error": err});
     }else{
+      console.log(array.length + ' restaurants returned');
       res.json(array);
     }
   });

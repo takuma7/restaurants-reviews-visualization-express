@@ -1,5 +1,9 @@
 var width = 800;
 var height = 600;
+var rest_circle_color = d3.scale.category20();
+var rest_circle_r_scale = d3.scale.linear()
+  .domain([0, 150])
+  .range([3, 150]);
 
 queue()
   .defer(d3.json, "/api/restaurants?longitude=139.757827&latitude=35.712850")
@@ -7,7 +11,7 @@ queue()
 
 function initialize(error, rests) {
   // google.maps.event.addDomListener(window, 'load', initialize);
-  console.log(rests);
+  // console.log(rests);
   var mapCanvas = document.getElementById('map-canvas');
   var mapOptions = {
     center: new google.maps.LatLng(35.712850, 139.757827),
@@ -35,9 +39,14 @@ function initialize(error, rests) {
     overlay.draw = function () {
       //地図描く
       svg.selectAll("circle")
-        .attr("r", function(d) {return 4 + Math.random() * 4;})
         .attr("opacity", 0.5)
-        .attr("fill", "red")
+        .attr("fill", function(d){return rest_circle_color(d.categories.category_name_l[0]);})
+        .attr("r", function(d) {
+          // console.log(d.total_score);
+          // console.log(d.categories);
+          if(d.score_count){return rest_circle_r_scale(d.score_count);}
+          else{return 3;}
+        })
         .attr("cx", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[0];})
         .attr("cy", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[1];})
         .on("mouseover", function (d) {
