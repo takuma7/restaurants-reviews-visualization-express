@@ -230,9 +230,14 @@ function extract (d, ind) {
   feature_of_rests[ind] = word;
 }
 
-function display(i) {
+function display(ind) {
+  svg.selectAll("circle")
+    .attr("opacity", function (d, i) {
+      if (i == ind) return 0.5;
+      return 0.2;
+  });
   d3.layout.cloud().size([800, 200])
-  .words(feature_of_rests[i])
+  .words(feature_of_rests[ind])
   .rotate(0)
   .fontSize(function(d) { return d.size; })
   .on("end", feature)
@@ -256,7 +261,7 @@ function display(i) {
     })
     .text(function(d) { return d.text; })
     .on("click", function (word) {
-      filter_word(word.text);
+      filter_word(word.text, ind);
     })
     .on("dblclick", function (d) {
       reset();
@@ -271,12 +276,17 @@ function is_contain (ind, word) {
   return false;
 }
 
-function filter_word (word) {
+function filter_word (word, ind) {
   svg.selectAll("circle")
-  .style("visibility", function (d, i) {
-    if (is_contain(i, word)) return "visible";
-    return "hidden";
+    .style("visibility", function (d, i) {
+      if (is_contain(i, word)) return "visible";
+      return "hidden";
+    })
+    .attr("opacity", function (d, i) {
+      if (i == ind) return 0.5;
+      return 0.2;
   });
+  
   d3.selectAll("text")
     .attr("opacity", function (d) {
       if (d.text != word) return 0.2;
@@ -286,7 +296,8 @@ function filter_word (word) {
 
 function reset () {
   svg.selectAll("circle")
-    .style("visibility", "visible");
+    .style("visibility", "visible")
+    .attr("opacity", 0.5);
   d3.selectAll("text")
     .attr("opacity", function (d) {
       return 10.0;
