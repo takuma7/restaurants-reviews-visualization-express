@@ -7,14 +7,14 @@ block content
     input#address.form-control(type='textbox', value='文京本郷', placeholder='地名/住所を入力')
     span.input-group-btn
       input.btn.btn-default(type='button', value='検索', onclick='getLocation()')
-  div(style='position: absolute; top: 20px; left: 20px; width: 20px; height: 100px; z-index: 999; vertical-align: middle')
-    | カテゴリー
-    input(type='button', value='全て', onclick='filter_category("全て")')
-    input(type='button', value='和食', onclick='filter_category("和食")')
-    input(type='button', value='洋食', onclick='filter_category("洋食")')
-    input(type='button', value='中華', onclick='filter_category("中華")')
-    input(type='button', value='ラーメン', onclick='filter_category("ラーメン")')
-    input(type='button', value='イタリアン', onclick='filter_category("イタリアン")')
-    input(type='button', value='インド', onclick='filter_category("インド")')
-    input(type='button', value='韓国', onclick='filter_category("韓国")')
+  .btn-group-vertical(style='position: absolute; top: 20px; left: 90px; width: 100px; height: 100px')
+    カテゴリー
+    button.btn.btn-primary(type='button', onclick='filter_category("全て")') 全て
+    button.btn.btn-primary(type='button', onclick='filter_category("和食")') 和食
+    button.btn.btn-primary(type='button', onclick='filter_category("洋食")') 洋食
+    button.btn.btn-primary(type='button', onclick='filter_category("中華")') 中華
+    button.btn.btn-primary(type='button', onclick='filter_category("ラーメン")') ラーメン
+    button.btn.btn-primary(type='button', onclick='filter_category("イタリアン")') イタリアン
+    button.btn.btn-primary(type='button', onclick='filter_category("インド")') インド
+    button.btn.btn-primary(type='button', onclick='filter_category("韓国")') 韓国
   #map-canvas
