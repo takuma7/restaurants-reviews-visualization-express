@@ -100,12 +100,12 @@ function process(rests, latitude, longitude) {
       //地図描く
       svg.selectAll("circle")
         .attr("r", function(d) {
-          if (d.votes === null || d.votes.length === 0) return 2;
+          if (d.votes === undefined || d.votes.length === 0) return 2;
           return scale(d.votes.length);
         })
         .attr("opacity", 0.5)
         .attr("fill", function (d) {
-          if (d.votes === null || d.votes.length === 0) return "#000";
+          if (d.votes === undefined || d.votes.length === 0) return "#000";
           return colorRed(d.avg_score);
         })
         .attr("stroke", function(d){
@@ -189,7 +189,7 @@ function extract_feature () {
 
 function extract (d, ind) {
   var word = [];
-  if (d.votes !== null && d.votes.length !== 0) {
+  if (d.votes !== undefined && d.votes.length !== 0) {
     var segmenter = new TinySegmenter();
     var hash_goods = {};
     var hash_bads = {};
@@ -231,7 +231,7 @@ function extract (d, ind) {
 }
 
 function display(i) {
-  d3.layout.cloud().size([545, 200])
+  d3.layout.cloud().size([800, 200])
   .words(feature_of_rests[i])
   .rotate(0)
   .fontSize(function(d) { return d.size; })
@@ -241,11 +241,11 @@ function display(i) {
   function feature(words) {
     d3.select(".wordcloud").remove();
     d3.select("body").append("svg")
-    .attr("width", 545)
+    .attr("width", 800)
     .attr("height", 200)
     .attr("class", "wordcloud")
     .append("g")
-    .attr("transform", "translate(200,100)")
+    .attr("transform", "translate(400,100)")
     .selectAll("text")
     .data(words)
     .enter().append("text")
@@ -277,11 +277,20 @@ function filter_word (word) {
     if (is_contain(i, word)) return "visible";
     return "hidden";
   });
+  d3.selectAll("text")
+    .attr("opacity", function (d) {
+      if (d.text != word) return 0.2;
+      return 10.0;
+  });
 }
 
 function reset () {
   svg.selectAll("circle")
-  .style("visibility", "visible");
+    .style("visibility", "visible");
+  d3.selectAll("text")
+    .attr("opacity", function (d) {
+      return 10.0;
+  });
 }
 
 function filter_category(type) {
