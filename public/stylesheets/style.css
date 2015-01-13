@@ -36,6 +36,7 @@ h1 {
   /* width: 545px; */
   width: 800px;
   height: 200px;
+  z-index: 999999;
 }
 
 div.tooltip {
@@ -47,6 +48,11 @@ div.tooltip {
   font-size: 12px;
   background: rgba(0, 0, 0, 0.5);
   border: 0px;
+}
+
+.category {
+  top: 10px;
+  left: 0px;
 }
 
 .tooltip ul {
