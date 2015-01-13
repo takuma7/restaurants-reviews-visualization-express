@@ -15,23 +15,25 @@ var bads = [
 var rests_data;
 var feature_of_rests;
 
-var color = d3.scale.category10();
+var color = d3.scale.category20();
+var word_color = d3.scale.category20c();
 var scale = d3.scale.linear()
-  .domain([1, 150])
-  .range([6, 50]);
+  .domain([1, 100])
+  .range([4, 80]);
 
-var levels = [1, 2, 3, 3.5, 4];
+var levels = [1, 1.7, 2.7, 3.7, 4.7];
 var quantizeRed = [
-	"rgb(254,229,217)",
-	"rgb(252,174,145)",
-	"rgb(251,106,74)",
-	"rgb(222,45,38)",
-	"rgb(165,15,21)"
+  "#00bfff",
+  "#008000",
+  "#ffd700",
+  "#ff8c00",
+  "#ff4500",
 ];
 
 var colorRed = d3.scale.linear()
-	.domain(levels)
-	.range(quantizeRed);
+  .domain(levels)
+  .range(quantizeRed)
+  .interpolate(d3.interpolateHcl);
 
 var tooltip = d3.select("body")
 	.append("div")
@@ -63,9 +65,10 @@ function process(rests, latitude, longitude) {
   var mapOptions = {
     center: new google.maps.LatLng(latitude, longitude),
     zoom: 16,
-    minZoom: 16,
+    minZoom: 14,
     maxZoom: 20,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
+    styles: [{"featureType":"water","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":17}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":17}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":29},{"weight":0.2}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":18}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":16}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":21}]},{"elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#000000"},{"lightness":16}]},{"elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#000000"},{"lightness":40}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":19}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":17},{"weight":1.2}]}]
   };
   geocoder = new google.maps.Geocoder();
   map = new google.maps.Map(mapCanvas, mapOptions);
@@ -81,7 +84,6 @@ function process(rests, latitude, longitude) {
     };
 
     path = d3.geo.path().projection(googleMapProjection);
-    console.log(rests);
     svg.selectAll("circle")
       .data(rests)
       .enter().append("circle");
@@ -90,19 +92,19 @@ function process(rests, latitude, longitude) {
       //地図描く
       svg.selectAll("circle")
         .attr("r", function(d) {
-        	if (d.votes == null || d.votes.length == 0) return 5;
-        	return scale(d.votes.length);
+          if (d.votes == null || d.votes.length === 0) return 2;
+          return scale(d.votes.length);
         })
         .attr("opacity", 0.5)
         .attr("fill", function (d) {
-        	if (d.votes == null || d.votes.length == 0) return "green";
-        	var ave = 0;
-        	for (var i = 0; i < d.votes.length; i++) {
-        		ave += Number(d.votes[i].score);
-        	};
-        	ave /= d.votes.length;
-        	return colorRed(ave);
+          if (d.votes == null || d.votes.length === 0) return "#000";
+          return colorRed(d.avg_score);
         })
+        .attr("stroke", function(d){
+          // return d3.hsl(color(d.categories.category_name_l[0])).darker(5-d.avg_score);
+          return color(d.categories.category_name_l[0]);
+        })
+        .attr("stroke-width", 1.3)
         .attr("cx", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[0];})
         .attr("cy", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[1];})
         .on("mouseover", function (d, i) {
@@ -110,9 +112,14 @@ function process(rests, latitude, longitude) {
             .duration(200)
             .style("opacity", 0.9);
 
-					tooltip.html("<b>" + d.name.name + "<b><br/>" + d.contacts.address + "<br/>" + d.contacts.tel)
-						.style("left", (d3.event.pageX + 20) + "px")
-						.style("top", (d3.event.pageY + 20) + "px");
+            tooltip.html('<ul>' +
+                         '<li class="title">' + d.name.name + '</li>' +
+                         '<li>' + '住所 : ' + d.contacts.address + '</li>' +
+                         '<li>' + 'TEL  : ' + d.contacts.tel + '</li>' +
+                         '<li>' + '評価 : ' + (d.avg_score ? Math.round(d.avg_score * 10)/10 : '-' ) + '</li>' +
+                         '</ul>')
+						.style("left", (d3.event.pageX + 15) + "px")
+						.style("top", (d3.event.pageY + 15) + "px");
         })
         .on("click", function (d, i) {
 					display(i);
@@ -147,26 +154,6 @@ function getLocation() {
   });
 }
 
-function GnaviAPI() {
-  this.keyid = "add0591d19cd0bbeabc34cb80cd0d06e";
-}
-
-GnaviAPI.prototype.restSearchWithLocationAndRange = function (location, range) {
-  var options = {
-    keyid: this.keyid,
-    format: "json",
-    hit_per_page: 500,
-    offset_page: 1,
-    latitude: location.latitude,
-    longitude: location.longitude,
-    range: range,
-  };
-  var rests = [];
-  $.get("http://api.gnavi.co.jp/ver2/RestSearchAPI/", options, function (res) {
-    console.log(res);
-  });
-};
-
 function convert (word) {
 	if (word == "おいしい" || word == "美味") return "美味しい";
 	if (word == "よい" || word == "いい") return "良い";
@@ -189,7 +176,7 @@ function extract_feature () {
 	feature_of_rests = new Array(rests_data.length);
 	for (var i = 0; i < rests_data.length; i++) {
 		extract(rests_data[i], i);
-	};
+	}
 }
 
 function extract (d, ind) {
@@ -206,15 +193,15 @@ function extract (d, ind) {
 	   				if (goods[k] in hash_goods) hash_goods[convert(goods[k])]++;
 	   				else hash_goods[convert(goods[k])] = 1;
 	   			}
-	   		};
+	   		}
 	   		for (var k = 0; k < bads.length; k++) {
 	   			if (segs[j].indexOf(bads[k]) != -1) {
 	   				if (bads[k] in hash_bads) hash_bads[convert(bads[k])]++;
 	   				else hash_bads[convert(bads[k])] = 1;
 	   			}
-	   		};
-	   	};
-	  };
+	   		}
+	   	}
+	  }
 	  for (var x in hash_goods) {
 	  	word.push({"text": x, "size": 20 + 10 * hash_goods[x]});
 	  }
@@ -229,9 +216,9 @@ function extract (d, ind) {
 			for (var j = 0; j < list_word.length; j++) {
 				if (list_word[j] == "その他") continue;
 				word.push({"text": list_word[j], "size": 20});
-			};
+			}
 		}
-	};
+	}
 	feature_of_rests[ind] = word;
 }
 
@@ -271,8 +258,8 @@ function display(i) {
 
 function is_contain (ind, word) {
 	for (var i = 0; i < feature_of_rests[ind].length; i++) {
-		if (feature_of_rests[ind][i].text == word) return true;
-	};
+		if (feature_of_rests[ind][i].text.indexOf(word) != -1) return true;
+	}
 	return false;
 }
 
@@ -287,4 +274,13 @@ function filter_word (word) {
 function reset () {
 	svg.selectAll("circle")
     .style("visibility", "visible");	
+}
+
+function filter_category(type) {
+  svg.selectAll("circle")
+    .style("visibility", function (d, i) {
+      if (type == "全て") return "visible";
+  	  if (is_contain(i, type)) return "visible";
+  	  return "hidden";
+  });
 }
