@@ -12,6 +12,12 @@ var bads = [
   "まずい","悪い","わるい","高"
 ];
 
+var cates = [ "全て","居酒屋","鍋","お酒","和食","中華","洋食","カレー","焼肉・ホルモン","お好み焼き・粉物",
+  "ラーメン・麺料理","欧米・各国料理","アジア・エスニック料理","オーガニック・創作料理","カフェ・スイーツ",
+  "日本料理・郷土料理","ダイニングバー・バー・ビアホール","イタリアン・フレンチ","すし・魚料理・シーフード",
+  "焼き鳥・肉料理・串料理","宴会・カラオケ・エンターテイメント","ファミレス・ファーストフード","その他の料理"
+];
+
 var rests_data;
 var feature_of_rests;
 
@@ -20,6 +26,22 @@ var word_color = d3.scale.category20c();
 var scale = d3.scale.linear()
   .domain([1, 100])
   .range([4, 80]);
+
+d3.select("body")
+  .attr("width", 200)
+  .attr("height", 600)
+  .attr("class", "category")
+  .append("g")
+  .selectAll("text")
+  .data(cates)
+  .enter().append("text")
+  .style("font-size", "15px")
+  .style("color", function(d) { return color(d); })
+  .text(function(d) { return d; })
+  .on("click", function (d) {
+    filter_category(d);
+  });
+
 
 var levels = [1, 1.7, 2.7, 3.7, 4.7];
 var quantizeRed = [
@@ -51,6 +73,7 @@ var tooltip = d3.select("body")
 var url = "/api/restaurants?";
 var latitude = "35.7055238";
 var longitude = "139.75966110000002";
+var type_of_rest = "全て";
 
 queue()
   .defer(d3.json, "/api/restaurants?longitude=139.75966110000002&latitude=35.7055238")
@@ -65,7 +88,7 @@ function initialize(error, rests) {
 }
 
 function process(rests, latitude, longitude) {
-  // console.log(rests);
+  console.log(rests);
   rests_data = rests;
   extract_feature();
   var mapCanvas = document.getElementById('map-canvas');
@@ -109,12 +132,16 @@ function process(rests, latitude, longitude) {
           return colorRed(d.avg_score);
         })
         .attr("stroke", function(d){
-          // return d3.hsl(color(d.categories.category_name_l[0])).darker(5-d.avg_score);
+          // return d3.hsl(color(d.categories.category_name_l[0])).darker(5 - d.avg_score);
           return color(d.categories.category_name_l[0]);
         })
         .attr("stroke-width", 1.3)
         .attr("cx", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[0];})
         .attr("cy", function(d) {return googleMapProjection([d.location.latitude_wgs84, d.location.longitude_wgs84])[1];})
+        .style("visibility", function (d) {
+          if (type_of_rest == "全て" || d.categories.category_name_l[0] == type_of_rest) return "visible";
+          return "hidden";
+        })
         .on("mouseover", function (d, i) {
           tooltip.transition()
           .duration(200)
@@ -218,9 +245,9 @@ function extract (d, ind) {
     }
   }
 
-  for (var i = 0; i < d.categories.category_name_s.length; i++) {
-    if (typeof d.categories.category_name_s[i] == 'string') {
-      var list_word = d.categories.category_name_s[i].split(/[ \(,・\)]+/);
+  for (var i = 0; i < d.categories.category_name_l.length; i++) {
+    if (typeof d.categories.category_name_l[i] == 'string') {
+      var list_word = d.categories.category_name_l[i].split(/[ \(,・\)]+/);
       for (var j = 0; j < list_word.length; j++) {
         if (list_word[j] == "その他") continue;
         word.push({"text": list_word[j], "size": 20});
@@ -230,9 +257,14 @@ function extract (d, ind) {
   feature_of_rests[ind] = word;
 }
 
-function display(i) {
+function display(ind) {
+  svg.selectAll("circle")
+    .attr("opacity", function (d, i) {
+      if (i == ind) return 0.5;
+      return 0.2;
+  });
   d3.layout.cloud().size([800, 200])
-  .words(feature_of_rests[i])
+  .words(feature_of_rests[ind])
   .rotate(0)
   .fontSize(function(d) { return d.size; })
   .on("end", feature)
@@ -256,7 +288,7 @@ function display(i) {
     })
     .text(function(d) { return d.text; })
     .on("click", function (word) {
-      filter_word(word.text);
+      filter_word(word.text, ind);
     })
     .on("dblclick", function (d) {
       reset();
@@ -271,12 +303,18 @@ function is_contain (ind, word) {
   return false;
 }
 
-function filter_word (word) {
+function filter_word (word, ind) {
   svg.selectAll("circle")
-  .style("visibility", function (d, i) {
-    if (is_contain(i, word)) return "visible";
-    return "hidden";
+    .style("visibility", function (d, i) {
+      if (type_of_rest != "全て" && d.categories.category_name_l[0] != type_of_rest) return "hidden";
+      if (is_contain(i, word)) return "visible";
+      return "hidden";
+    })
+    .attr("opacity", function (d, i) {
+      if (i == ind) return 0.5;
+      return 0.2;
   });
+  
   d3.selectAll("text")
     .attr("opacity", function (d) {
       if (d.text != word) return 0.2;
@@ -286,18 +324,25 @@ function filter_word (word) {
 
 function reset () {
   svg.selectAll("circle")
-    .style("visibility", "visible");
+    .style("visibility", function (d) {
+      if (type_of_rest == "全て") return "visible";
+      if (d.categories.category_name_l[0] == type_of_rest) return "visible";
+      return "hidden";
+    })
+    .attr("opacity", 0.5);
+    
   d3.selectAll("text")
     .attr("opacity", function (d) {
       return 10.0;
   });
 }
 
-function filter_category(type) {
+function filter_category (type) {
+  type_of_rest = type;
   svg.selectAll("circle")
     .style("visibility", function (d, i) {
       if (type == "全て") return "visible";
-  	  if (is_contain(i, type)) return "visible";
+  	  if (d.categories.category_name_l[0] == type) return "visible";
   	  return "hidden";
   });
 }
