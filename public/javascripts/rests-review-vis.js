@@ -231,7 +231,7 @@ function extract (d, ind) {
 }
 
 function display(i) {
-  d3.layout.cloud().size([545, 200])
+  d3.layout.cloud().size([800, 200])
   .words(feature_of_rests[i])
   .rotate(0)
   .fontSize(function(d) { return d.size; })
@@ -241,11 +241,11 @@ function display(i) {
   function feature(words) {
     d3.select(".wordcloud").remove();
     d3.select("body").append("svg")
-    .attr("width", 545)
+    .attr("width", 800)
     .attr("height", 200)
     .attr("class", "wordcloud")
     .append("g")
-    .attr("transform", "translate(200,100)")
+    .attr("transform", "translate(400,100)")
     .selectAll("text")
     .data(words)
     .enter().append("text")
