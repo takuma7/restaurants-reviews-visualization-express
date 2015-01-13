@@ -75,7 +75,7 @@ var map;
 var geocoder;
 
 function initialize(error, rests) {
-  process(rests, "35.7055238", "139.75966110000002");
+  process(rests, latitude, longitude);
 }
 
 function process(rests, latitude, longitude) {
