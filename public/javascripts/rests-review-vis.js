@@ -22,20 +22,6 @@ var scale = d3.scale.linear()
   .range([4, 80]);
 
 var levels = [1, 1.7, 2.7, 3.7, 4.7];
-// var quantizeRed = [
-  // "rgb(254,229,217)",
-  // "rgb(252,174,145)",
-  // "rgb(251,106,74)",
-  // "rgb(222,45,38)",
-  // "rgb(165,15,21)"
-// ];
-// var quantizeRed = [
-  // "hsl(0, 100%, 10%)",
-  // "hsl(0, 100%, 20%)",
-  // "hsl(0, 100%, 30%)",
-  // "hsl(0, 100%, 70%)",
-  // "hsl(0, 100%, 100%)",
-// ];
 var quantizeRed = [
   "#00bfff",
   "#008000",
@@ -296,4 +282,13 @@ function filter_word (word) {
 function reset () {
   svg.selectAll("circle")
   .style("visibility", "visible");
+}
+
+function filter_category(type) {
+  svg.selectAll("circle")
+    .style("visibility", function (d, i) {
+      if (type == "全て") return "visible";
+  	  if (is_contain(i, type)) return "visible";
+  	  return "hidden";
+  });
 }
