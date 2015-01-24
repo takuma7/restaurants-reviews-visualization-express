@@ -27,22 +27,6 @@ var scale = d3.scale.linear()
   .domain([1, 100])
   .range([4, 80]);
 
-d3.select("body")
-  .attr("width", 200)
-  .attr("height", 600)
-  .attr("class", "category")
-  .append("g")
-  .selectAll("text")
-  .data(cates)
-  .enter().append("text")
-  .style("font-size", "15px")
-  .style("margin-right", "1em")
-  .style("color", function(d) { return color(d); })
-  .text(function(d) { return d; })
-  .on("click", function (d) {
-    filter_category(d);
-  });
-
 
 var levels = [1, 1.7, 2.7, 3.7, 4.7];
 var quantizeRed = [
@@ -86,6 +70,25 @@ var geocoder;
 
 function initialize(error, rests) {
   process(rests, latitude, longitude);
+  d3.select("#cates")
+    .attr("width", 200)
+    .attr("height", 600)
+    .attr("class", "category")
+    .append("g")
+    .selectAll("text")
+    .data(cates)
+    .enter().append("text")
+    .style("font-size", "15px")
+    .style("margin-right", "1em")
+    .style("color", function(d) { return color(d); })
+    .text(function(d) { return d; })
+    .style("opacity", function(d){
+      if(d == "全て") return 1;
+      else return 0.2;
+    })
+    .on("click", function (d) {
+      filter_category(d);
+    });
 }
 
 function process(rests, latitude, longitude) {
@@ -343,7 +346,13 @@ function filter_category (type) {
   svg.selectAll("circle")
     .style("visibility", function (d, i) {
       if (type == "全て") return "visible";
-  	  if (d.categories.category_name_l[0] == type) return "visible";
-  	  return "hidden";
+      if (d.categories.category_name_l[0] == type) return "visible";
+      return "hidden";
+    });
+  d3.selectAll("text")
+    .style("opacity", function (d) {
+      if (d == type) return 1;
+      else return 0.2;
   });
+
 }
