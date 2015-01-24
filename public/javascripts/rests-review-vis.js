@@ -36,6 +36,7 @@ d3.select("body")
   .data(cates)
   .enter().append("text")
   .style("font-size", "15px")
+  .style("margin-right", "1em")
   .style("color", function(d) { return color(d); })
   .text(function(d) { return d; })
   .on("click", function (d) {
@@ -88,7 +89,7 @@ function initialize(error, rests) {
 }
 
 function process(rests, latitude, longitude) {
-  console.log(rests);
+  // console.log(rests);
   rests_data = rests;
   extract_feature();
   var mapCanvas = document.getElementById('map-canvas');
@@ -314,7 +315,7 @@ function filter_word (word, ind) {
       if (i == ind) return 0.5;
       return 0.2;
   });
-  
+
   d3.selectAll("text")
     .attr("opacity", function (d) {
       if (d.text != word) return 0.2;
@@ -330,7 +331,7 @@ function reset () {
       return "hidden";
     })
     .attr("opacity", 0.5);
-    
+
   d3.selectAll("text")
     .attr("opacity", function (d) {
       return 10.0;
