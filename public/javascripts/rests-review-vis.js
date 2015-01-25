@@ -1,6 +1,8 @@
+// 表示領域の大きさ
 var width = 800;
 var height = 600;
 
+// 良い言葉のセット
 var goods = [
   "美味しい","おいしい","満足","まんぞく","おすすめ","オススメ",
   "いっぱい","美味","優しい","やさしい","良い","いい","よい","暖かい","あたたかい",
@@ -8,10 +10,12 @@ var goods = [
   "新鮮","ハイレベル","刺激","さすが","嬉しい","うれしい","バランス","素晴","優れ","素敵","感謝","柔","すごか",
   "食欲","あっさり","ビックリ","びっくり","最高","濃","衝撃","甘","きれい","なつかしい","激辛"
 ];
+// 悪い言葉のセット
 var bads = [
   "まずい","悪い","わるい","高"
 ];
 
+// レストランのカテゴリ
 var cates = [ "全て","居酒屋","鍋","お酒","和食","中華","洋食","カレー","焼肉・ホルモン","お好み焼き・粉物",
   "ラーメン・麺料理","欧米・各国料理","アジア・エスニック料理","オーガニック・創作料理","カフェ・スイーツ",
   "日本料理・郷土料理","ダイニングバー・バー・ビアホール","イタリアン・フレンチ","すし・魚料理・シーフード",
@@ -27,8 +31,10 @@ var scale = d3.scale.linear()
   .domain([1, 100])
   .range([4, 80]);
 
-
+// 評価の区切り
 var levels = [1, 1.7, 2.7, 3.7, 4.7];
+
+// 評価の色
 var quantizeRed = [
   "#00bfff",
   "#008000",
@@ -60,6 +66,7 @@ var latitude = "35.7055238";
 var longitude = "139.75966110000002";
 var type_of_rest = "全て";
 
+// queueを用いてデータを確実にロード
 queue()
   .defer(d3.json, "/api/restaurants?longitude=139.75966110000002&latitude=35.7055238")
   .await(initialize);
@@ -68,8 +75,12 @@ var svg;
 var map;
 var geocoder;
 
+// ページがロードされた時に実行される
 function initialize(error, rests) {
+  //地図上にデータを表示
   process(rests, latitude, longitude);
+
+  // カテゴリフィルタの用意と表示
   d3.select("#cates")
     .attr("width", 200)
     .attr("height", 600)
@@ -91,11 +102,15 @@ function initialize(error, rests) {
     });
 }
 
+// 地図上にレストラン情報を表示。
+// rests: レストラン情報
+// latitude, longitude: 緯度経度
 function process(rests, latitude, longitude) {
   // console.log(rests);
   rests_data = rests;
   extract_feature();
   var mapCanvas = document.getElementById('map-canvas');
+  // 地図の設定。style設定により黒い地図にしている
   var mapOptions = {
     center: new google.maps.LatLng(latitude, longitude),
     zoom: 16,
@@ -117,12 +132,16 @@ function process(rests, latitude, longitude) {
       return [pixelCoordinates.x + 4000, pixelCoordinates.y + 4000];
     };
 
+    // Google Mapsのプロジェクションを取得
     path = d3.geo.path().projection(googleMapProjection);
     // console.log(rests);
+    // レストランの位置に円を描く
     svg.selectAll("circle")
       .data(rests)
       .enter().append("circle");
 
+    // オーバーレイ情報を表示する。
+    // ツールチップやレストラン情報の円
     overlay.draw = function () {
       //地図描く
       svg.selectAll("circle")
