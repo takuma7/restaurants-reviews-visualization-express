@@ -192,15 +192,20 @@ function process(rests, latitude, longitude) {
   overlay.setMap(map);
 }
 
+// 地域の位置情報を取得し、その周辺のレストランを表示させる
 function getLocation() {
   var address = document.getElementById("address").value;
   geocoder.geocode({'address': address}, function (results, status) {
     if (status == google.maps.GeocoderStatus.OK) {
       map.setCenter(results[0].geometry.location);
       console.log(results[0].geometry.location);
+      
+      // 緯度と経度を更新する
       latitude = results[0].geometry.location.k;
       longitude = results[0].geometry.location.D;
       console.log(latitude + " " + longitude);
+      
+      // 周辺のレストランを検索する
       var link = url + "longitude=" + longitude + "&latitude=" + latitude;
       queue()
         .defer(d3.json, link)
@@ -212,6 +217,7 @@ function getLocation() {
   });
 }
 
+// 同意義の単語を変換する
 function convert (word) {
   if (word == "おいしい" || word == "美味") return "美味しい";
   if (word == "よい" || word == "いい") return "良い";
@@ -230,6 +236,7 @@ function convert (word) {
   return word;
 }
 
+// 全てのレストランの特徴キーワードを抽出する
 function extract_feature () {
   feature_of_rests = new Array(rests_data.length);
   for (var i = 0; i < rests_data.length; i++) {
@@ -237,21 +244,27 @@ function extract_feature () {
   }
 }
 
+// 実際に特徴キーワードを解析する
 function extract (d, ind) {
   var word = [];
+  // コメントがある場合のみ解析を行う
   if (d.votes !== undefined && d.votes.length !== 0) {
+    
+    // TinySegmenter を用いて、文を単語に切り出す
     var segmenter = new TinySegmenter();
     var hash_goods = {};
     var hash_bads = {};
     for (var i = 0; i < d.votes.length; i++) {
       var segs = segmenter.segment(d.votes[i].comment);
       for (var j = 0; j < segs.length; j++) {
+        // 良いキーワード
         for (var k = 0; k < goods.length; k++) {
           if (segs[j].indexOf(goods[k]) != -1) {
             if (goods[k] in hash_goods) hash_goods[convert(goods[k])]++;
             else hash_goods[convert(goods[k])] = 1;
           }
         }
+        // 悪いキーワード
         for (var k = 0; k < bads.length; k++) {
           if (segs[j].indexOf(bads[k]) != -1) {
             if (bads[k] in hash_bads) hash_bads[convert(bads[k])]++;
@@ -260,6 +273,7 @@ function extract (d, ind) {
         }
       }
     }
+    // text: キーワード, size: 頻度 の形式で保存する
     for (var x in hash_goods) {
       word.push({"text": x, "size": 20 + 10 * hash_goods[x]});
     }
@@ -267,7 +281,8 @@ function extract (d, ind) {
       word.push({"text": x, "size": 20 + 10 * hash_bads[x]});
     }
   }
-
+  
+  // レストランのカテゴリーを抽出する
   for (var i = 0; i < d.categories.category_name_l.length; i++) {
     if (typeof d.categories.category_name_l[i] == 'string') {
       var list_word = d.categories.category_name_l[i].split(/[ \(,・\)]+/);
@@ -280,19 +295,25 @@ function extract (d, ind) {
   feature_of_rests[ind] = word;
 }
 
+// 特定のレストランをクリックするときに、他のレストランの明るさを薄くし、
+// レストランを表すキーワードを表示する
 function display(ind) {
+  // クリックされたレストラン以外のを薄くする
   svg.selectAll("circle")
     .attr("opacity", function (d, i) {
       if (i == ind) return 0.5;
       return 0.2;
   });
+  
+  // レストランのキーワードを表示させる
   d3.layout.cloud().size([800, 200])
   .words(feature_of_rests[ind])
   .rotate(0)
   .fontSize(function(d) { return d.size; })
   .on("end", feature)
   .start();
-
+  
+  // キーワード表示のインタラクション
   function feature(words) {
     d3.select(".wordcloud").remove();
     d3.select("body").append("svg")
@@ -319,6 +340,7 @@ function display(ind) {
   }
 }
 
+// ある言葉がレストランの特徴キーワードに含まれるかどうかをチェック
 function is_contain (ind, word) {
   for (var i = 0; i < feature_of_rests[ind].length; i++) {
     if (feature_of_rests[ind][i].text == word) return true;
@@ -326,7 +348,10 @@ function is_contain (ind, word) {
   return false;
 }
 
+// あるキーワードをクリックしたときに、そのキーワードが含まれているレストランのみを表示する
+// 他のキーワードを薄くする
 function filter_word (word, ind) {
+  // キーワードが含まれているレストランのみを表示する
   svg.selectAll("circle")
     .style("visibility", function (d, i) {
       if (type_of_rest != "全て" && d.categories.category_name_l[0] != type_of_rest) return "hidden";
@@ -337,7 +362,8 @@ function filter_word (word, ind) {
       if (i == ind) return 0.5;
       return 0.2;
   });
-
+  
+  // 他のキーワードを薄くする
   d3.selectAll("text")
     .attr("opacity", function (d) {
       if (d.text != word) return 0.2;
@@ -345,6 +371,7 @@ function filter_word (word, ind) {
   });
 }
 
+// 元の状態に戻す
 function reset () {
   svg.selectAll("circle")
     .style("visibility", function (d) {
@@ -360,6 +387,7 @@ function reset () {
   });
 }
 
+// カテゴリーごとにレストランを表示する
 function filter_category (type) {
   type_of_rest = type;
   svg.selectAll("circle")
@@ -368,10 +396,10 @@ function filter_category (type) {
       if (d.categories.category_name_l[0] == type) return "visible";
       return "hidden";
     });
+    
   d3.selectAll("text")
     .style("opacity", function (d) {
       if (d == type) return 1;
       else return 0.2;
   });
-
 }
