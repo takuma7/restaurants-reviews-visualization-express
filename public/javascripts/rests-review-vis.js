@@ -75,11 +75,7 @@ var svg;
 var map;
 var geocoder;
 
-// ページがロードされた時に実行される
-function initialize(error, rests) {
-  //地図上にデータを表示
-  process(rests, latitude, longitude);
-
+$(function(){
   // カテゴリフィルタの用意と表示
   d3.select("#cates")
     .attr("width", 200)
@@ -100,6 +96,13 @@ function initialize(error, rests) {
     .on("click", function (d) {
       filter_category(d);
     });
+});
+
+// ページがロードされた時に実行される
+function initialize(error, rests) {
+  //地図上にデータを表示
+  process(rests, latitude, longitude);
+
 }
 
 // 地図上にレストラン情報を表示。
@@ -143,19 +146,22 @@ function process(rests, latitude, longitude) {
     // オーバーレイ情報を表示する。
     // ツールチップやレストラン情報の円
     overlay.draw = function () {
-      //地図描く
+      // レストランの円を描画
       svg.selectAll("circle")
         .attr("r", function(d) {
+          // 評価が無いレストランの円は小さくする
           if (d.votes === undefined || d.votes.length === 0) return 2;
           return scale(d.votes.length);
         })
         .attr("opacity", 0.5)
         .attr("fill", function (d) {
+          // 評価が無いレストランの評価色は黒にする
           if (d.votes === undefined || d.votes.length === 0) return "#000";
           return colorRed(d.avg_score);
         })
         .attr("stroke", function(d){
           // return d3.hsl(color(d.categories.category_name_l[0])).darker(5 - d.avg_score);
+          // カテゴリによってstroke色を変える
           return color(d.categories.category_name_l[0]);
         })
         .attr("stroke-width", 1.3)
@@ -192,6 +198,7 @@ function process(rests, latitude, longitude) {
   overlay.setMap(map);
 }
 
+// 地名から緯度経度を取得
 function getLocation() {
   var address = document.getElementById("address").value;
   geocoder.geocode({'address': address}, function (results, status) {
