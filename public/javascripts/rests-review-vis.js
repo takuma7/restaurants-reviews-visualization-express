@@ -85,7 +85,6 @@ function initialize(error, rests) {
     .attr("width", 200)
     .attr("height", 600)
     .attr("class", "category")
-    .append("g")
     .selectAll("text")
     .data(cates)
     .enter().append("text")
