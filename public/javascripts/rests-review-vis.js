@@ -205,12 +205,12 @@ function getLocation() {
     if (status == google.maps.GeocoderStatus.OK) {
       map.setCenter(results[0].geometry.location);
       console.log(results[0].geometry.location);
-      
+
       // 緯度と経度を更新する
-      latitude = results[0].geometry.location.k;
-      longitude = results[0].geometry.location.D;
+      latitude = results[0].geometry.location.G;
+      longitude = results[0].geometry.location.K;
       console.log(latitude + " " + longitude);
-      
+
       // 周辺のレストランを検索する
       var link = url + "longitude=" + longitude + "&latitude=" + latitude;
       queue()
@@ -255,7 +255,7 @@ function extract (d, ind) {
   var word = [];
   // コメントがある場合のみ解析を行う
   if (d.votes !== undefined && d.votes.length !== 0) {
-    
+
     // TinySegmenter を用いて、文を単語に切り出す
     var segmenter = new TinySegmenter();
     var hash_goods = {};
@@ -287,7 +287,7 @@ function extract (d, ind) {
       word.push({"text": x, "size": 20 + 10 * hash_bads[x]});
     }
   }
-  
+
   // レストランのカテゴリーを抽出する
   for (var i = 0; i < d.categories.category_name_l.length; i++) {
     if (typeof d.categories.category_name_l[i] == 'string') {
@@ -310,7 +310,7 @@ function display(ind) {
       if (i == ind) return 0.5;
       return 0.2;
   });
-  
+
   // レストランのキーワードを表示させる
   d3.layout.cloud().size([800, 200])
   .words(feature_of_rests[ind])
@@ -318,7 +318,7 @@ function display(ind) {
   .fontSize(function(d) { return d.size; })
   .on("end", feature)
   .start();
-  
+
   // キーワード表示のインタラクション
   function feature(words) {
     d3.select(".wordcloud").remove();
@@ -368,7 +368,7 @@ function filter_word (word, ind) {
       if (i == ind) return 0.5;
       return 0.2;
   });
-  
+
   // 他のキーワードを薄くする
   d3.selectAll("text")
     .attr("opacity", function (d) {
@@ -402,7 +402,7 @@ function filter_category (type) {
       if (d.categories.category_name_l[0] == type) return "visible";
       return "hidden";
     });
-    
+
   d3.selectAll("text")
     .style("opacity", function (d) {
       if (d == type) return 1;
