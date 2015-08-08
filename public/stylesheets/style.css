@@ -1,6 +1,7 @@
 body {
   width: 800px;
   margin: 0 auto;
+  margin-top: 2em;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background: #282828;
   color: #fff;
